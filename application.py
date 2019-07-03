@@ -65,7 +65,7 @@ symbols = {
 
 #consol_df=functools.reduce(lambda x,y: x.join(y,how='outer'),stock_dfs)
 #DELTE THE NEXT ASSIGNMENT
-consol_df=[df_eia]
+consol_df=df_eia
 consol_df=consol_df.loc['2019-01-18':]
 consol_df.fillna(axis=0,method='ffill',inplace=True)
 
