@@ -117,7 +117,8 @@ def update_value(input_data):
             'data': chartdata,
             'layout': {
                 'title': 'Crude Oil',
-                'plot_bgcolor': 'white'
+                'plot_bgcolor': 'white',
+                'xaxis':'date'
             } 
         },
         style={'height': '90vh','backgroundColor':'black'},
