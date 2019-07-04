@@ -1,3 +1,5 @@
 {
-    "python.pythonPath": "cenv\\Scripts\\python.exe"
+    "python.pythonPath": "cenv\\Scripts\\python.exe",
+    "appService.defaultWebAppToDeploy": "/subscriptions/ede51d3c-9220-45a8-a50e-10b8906e7913/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/khandash5",
+    "appService.deploySubpath": ""
 }
