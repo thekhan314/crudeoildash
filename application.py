@@ -92,10 +92,11 @@ dash_app=dash.Dash(__name__)
 app=dash_app.server
 app.title = "Crude Oil Dashboard"
 
+
 dash_app.layout = html.Div(children=[
     dcc.Checklist(id='maincheck',
     options=checkoptions,
-    value=[]),
+    value=['Spot Price']),
    html.Div(id='output',style={'backgroundColor':'black'})
 ]
 )
