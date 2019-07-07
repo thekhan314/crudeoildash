@@ -111,7 +111,7 @@ def update_value(input_data):
         x = scaled_df.index
         y = scaled_df[val]
         
-        chart = go.Scatter(x=x,y=y,name=val,mode='lines+markers')
+        chart = go.Scatter(x=x,y=y,name=val,mode='lines')
         chartdata.append(chart)
     return {'data':chartdata, 'layout':go.Layout(xaxis=dict(type='date',tickformat='%b-%d-%Y'))}
     
