@@ -1,18 +1,17 @@
 import pandas as pd
 import requests
 import json
-
-
-
 import functools
-
 from sklearn import preprocessing
-
 #import pyodbc
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output
+import plotly
+import plotly.graph_objs as go
+import cufflinks as cf
+
 
 
 ""
@@ -97,32 +96,25 @@ dash_app.layout = html.Div(children=[
     dcc.Checklist(id='maincheck',
     options=checkoptions,
     value=['Spot Price']),
-   html.Div(id='output',style={'backgroundColor':'black'})
+   dcc.Graph(id='output', style={'height': '90vh','backgroundColor':'black'}), 
 ]
 )
 
 @dash_app.callback(
-    Output(component_id='output',component_property='children'),
+    Output(component_id='output',component_property='figure'),
     [Input(component_id='maincheck',component_property='value')])
 
 def update_value(input_data):
     chartdata=[]
     for val in input_data:
-        selseries = scaled_df[val]
-        chartdict= {'x':scaled_df.index.values,'y':selseries,name:val}
-        chartdata.append(chartdict)
-
-    return dcc.Graph(            
-        figure={
-            'data': chartdata,
-            'layout': {
-                'title': 'Crude Oil',
-                'plot_bgcolor': 'white',
-                'xaxis':'date'
-            } 
-        },
-        style={'height': '90vh','backgroundColor':'black'},
-    )
+        
+        x = scaled_df.index
+        y = scaled_df[val]
+        
+        chart = go.Scatter(x=x,y=y,name=val,mode='lines+markers')
+        chartdata.append(chart)
+    return {'data':chartdata, 'layout':go.Layout(xaxis=dict(type='date',tickformat='%b-%d-%Y'))}
+    
 
 if __name__ == '__main__':
     dash_app.run_server(debug=False)
