@@ -50,7 +50,21 @@ def update_value(input_data):
         
         chart = go.Scatter(x=x,y=y,name=val,mode='lines')
         chartdata.append(chart)
-    return {'data':chartdata, 'layout':go.Layout(xaxis=dict(type='date',tickformat='%b-%d-%Y'))}
+
+        layout=go.Layout(
+            xaxis=dict(
+                type='date',
+                tickformat='%b-%d-%Y',
+                zeroline=False,
+                showgrid=False
+            ),
+            yaxis=dict(
+                zeroline=False,
+                showgrid=False,
+                showticklabels=False
+            )
+        )
+    return {'data':chartdata, 'layout':layout}
 
 if __name__ == '__main__':
     dash_app.run_server(debug=False)
