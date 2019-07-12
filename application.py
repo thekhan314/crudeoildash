@@ -32,13 +32,15 @@ dash_app.layout = html.Div(children=[
     dcc.Checklist(id='maincheck',
     options=checkoptions,
     value=['Spot Price']),
-   dcc.Graph(id='output', style={'height': '90vh','backgroundColor':'black'}),
+   html.Div(
+       id='output',
+       ),
    dcc.Interval(id='graph_update') 
 ]
 )
 
 @dash_app.callback(
-    Output(component_id='output',component_property='figure'),
+    Output(component_id='output',component_property='children'),
     [Input(component_id='maincheck',component_property='value')])
 
 def update_value(input_data):
@@ -51,20 +53,31 @@ def update_value(input_data):
         chart = go.Scatter(x=x,y=y,name=val,mode='lines')
         chartdata.append(chart)
 
-        layout=go.Layout(
-            xaxis=dict(
-                type='date',
-                tickformat='%b-%d-%Y',
-                zeroline=False,
-                showgrid=False
-            ),
-            yaxis=dict(
-                zeroline=False,
-                showgrid=False,
-                showticklabels=False
-            )
+    layout=go.Layout(
+        xaxis=dict(
+            type='date',
+            tickformat='%b-%d-%Y',
+            zeroline=False,
+            showgrid=False
+        ),
+        yaxis=dict(
+            zeroline=False,
+            showgrid=False,
+            showticklabels=False
         )
-    return {'data':chartdata, 'layout':layout}
+    )
+    return dcc.Graph(
+        id='main-graph',
+        figure={
+            'data':chartdata,
+            'layout':layout
+        },
+        style={
+            'height': '100vh',
+            'backgroundColor':'black'
+            },
+        animate=True
+    )
 
 if __name__ == '__main__':
     dash_app.run_server(debug=False)
