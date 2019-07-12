@@ -17,7 +17,7 @@ import sqlite3
 
 dash_app=dash.Dash(__name__)
 app=dash_app.server
-app.title = "Crude Oil Dashboard"
+dash_app.title = "Crude Oil Dashboard"
 
 conn = sqlite3.connect('oilstocks.db')
 c = conn.cursor()
@@ -44,6 +44,8 @@ dash_app.layout = html.Div(children=[
     [Input(component_id='maincheck',component_property='value')])
 
 def update_value(input_data):
+
+    
     chartdata=[]
     for val in input_data:
         
