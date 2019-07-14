@@ -32,6 +32,9 @@ dash_app.layout = html.Div(children=[
     dcc.Checklist(id='maincheck',
     options=checkoptions,
     value=['Spot Price']),
+    dcc.DatePickerRange(
+        id='my-date-picker-range',       
+    ),
    html.Div(
        id='output',
        ),
@@ -41,11 +44,14 @@ dash_app.layout = html.Div(children=[
 
 @dash_app.callback(
     Output(component_id='output',component_property='children'),
-    [Input(component_id='maincheck',component_property='value')])
+    [Input(component_id='maincheck',component_property='value'),
+    Input(component_id='my-date-picker-range',component_property='start_date'),
+    Input(component_id='my-date-picker-range',component_property='end_date')
+    ])
 
-def update_value(input_data):
+def update_value(input_data,start_date,end_date):
 
-    
+    scaled_df=scaled_df[start_date:end_date]
     chartdata=[]
     for val in input_data:
         
