@@ -19,12 +19,14 @@ dash_app=dash.Dash(__name__)
 app=dash_app.server
 dash_app.title = "Crude Oil Dashboard"
 
-conn = sqlite3.connect('oilstocks.db')
-c = conn.cursor()
-scaled_df=pd.read_sql_query('SELECT * FROM scaledstocks WHERE "Date" > "2000-01-01 00:00:00" ORDER BY "Date" ASC',conn,index_col="Date")
+
+#
+con = sqlite3.connect('oilstocks.db')
+c = con.cursor()
+options_df=pd.read_sql_query('SELECT * FROM scaledstocks' ,con)
 
 checkoptions = []
-for col in scaled_df:
+for col in options_df:
     optiondict = {'label':col,'value':col}  
     checkoptions.append(optiondict)
 
@@ -50,6 +52,10 @@ dash_app.layout = html.Div(children=[
     ])
 
 def update_value(input_data,start_date,end_date):
+
+    conn = sqlite3.connect('oilstocks.db')
+    c = conn.cursor()
+    scaled_df=pd.read_sql_query('SELECT * FROM scaledstocks WHERE "Date" > "2000-01-01 00:00:00" ORDER BY "Date" ASC',conn,index_col="Date")
 
     scaled_df=scaled_df[start_date:end_date]
     chartdata=[]
