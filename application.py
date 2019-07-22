@@ -13,7 +13,7 @@ import plotly.graph_objs as go
 import cufflinks as cf
 import sqlite3
 
-#just testing too see if it works
+#july 22 test
 
 
 dash_app=dash.Dash(__name__)
