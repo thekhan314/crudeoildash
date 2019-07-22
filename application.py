@@ -22,14 +22,14 @@ dash_app.title = "Crude Oil Dashboard"
 
 
 #
-con = sqlite3.connect('oilstocks.db')
-c = con.cursor()
-options_df=pd.read_sql_query('SELECT * FROM scaledstocks' ,con)
+#con = sqlite3.connect('oilstocks.db')
+#c = con.cursor()
+#options_df=pd.read_sql_query('SELECT * FROM scaledstocks' ,con)
 
-checkoptions = []
-for col in options_df:
-    optiondict = {'label':col,'value':col}  
-    checkoptions.append(optiondict)
+checkoptions = ['Weekly Stocks','Spot Price','Crude Supplied']
+#for col in options_df:
+ #   optiondict = {'label':col,'value':col}  
+  #  checkoptions.append(optiondict)
 
 dash_app.layout = html.Div(children=[
     dcc.Checklist(id='maincheck',
