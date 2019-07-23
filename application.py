@@ -26,7 +26,7 @@ dash_app.title = "Crude Oil Dashboard"
 #c = con.cursor()
 #options_df=pd.read_sql_query('SELECT * FROM scaledstocks' ,con)
 
-checkoptions = ['Weekly Stocks','Spot Price','Crude Supplied']
+checkoptions = [{'label':'Weekly Stocks','value':'Weekly Stocks'},{'label':'Spot Price', 'value':'Spot Price'},{'value':'Crude Supplied','label':'Crude Supplied'}]
 #for col in options_df:
  #   optiondict = {'label':col,'value':col}  
   #  checkoptions.append(optiondict)
