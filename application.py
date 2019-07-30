@@ -8,6 +8,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output
+from datetime import datetime as dt
 import plotly
 import plotly.graph_objs as go
 import cufflinks as cf
@@ -20,23 +21,21 @@ dash_app=dash.Dash(__name__)
 app=dash_app.server
 dash_app.title = "Crude Oil Dashboard"
 
+checkoptions = [
+    {'label':'Weekly Stocks','value':'Weekly Stocks'},
+    {'label':'Spot Price', 'value':'Spot Price'},
+    {'value':'Crude Supplied','label':'Crude Supplied'}
+    ]
 
-#
-#con = sqlite3.connect('oilstocks.db')
-#c = con.cursor()
-#options_df=pd.read_sql_query('SELECT * FROM scaledstocks' ,con)
-
-checkoptions = [{'label':'Weekly Stocks','value':'Weekly Stocks'},{'label':'Spot Price', 'value':'Spot Price'},{'value':'Crude Supplied','label':'Crude Supplied'}]
-#for col in options_df:
- #   optiondict = {'label':col,'value':col}  
-  #  checkoptions.append(optiondict)
 
 dash_app.layout = html.Div(children=[
     dcc.Checklist(id='maincheck',
     options=checkoptions,
     value=['Spot Price']),
     dcc.DatePickerRange(
-        id='my-date-picker-range',       
+        id='my-date-picker-range',
+        start_date=dt(2009, 1, 1),
+        end_date= dt.now() 
     ),
    html.Div(
        id='output',
@@ -44,6 +43,8 @@ dash_app.layout = html.Div(children=[
    dcc.Interval(id='graph_update') 
 ]
 )
+
+
 
 @dash_app.callback(
     Output(component_id='output',component_property='children'),
@@ -56,10 +57,28 @@ def update_value(input_data,start_date,end_date):
 
     conn = sqlite3.connect('oilstocks.db')
     c = conn.cursor()
-    scaled_df=pd.read_sql_query('SELECT * FROM scaledstocks WHERE "Date" > "2000-01-01 00:00:00" ORDER BY "Date" ASC',conn,index_col="Date")
+  
+    dtstart_date=dt.strptime(start_date,'%Y-%m-%d')
+    dtend_date= dt.strptime(end_date[:19],'%Y-%m-%d %H:%M:%S') # 
 
-    scaled_df=scaled_df[start_date:end_date]
+    sql_start = dtstart_date.isoformat(" ")
+    sql_end = dtend_date.isoformat(" ")
+
+    #news_df=pd.read_sql_query('SELECT Date, description,yvalue FROM newstable ORDER BY "Date" ASC',conn,index_col="Date")
+
+    scaled_df=pd.read_sql_query('SELECT * FROM crudestocks ORDER BY "Date" ASC',conn,index_col="Date")
+    
+    scaled_df=scaled_df[sql_start:sql_end]
+
+    for col in scaled_df:
+        scaled_df[col]=preprocessing.scale(scaled_df[col])
+
     chartdata=[]
+
+    #newschart=go.Scatter(x=news_df.index,y=news_df['yvalue'],hovertext=news_df['description'],mode='markers')
+    #chartdata.append(newschart)
+
+    
     for val in input_data:
         
         x = scaled_df.index
@@ -73,12 +92,15 @@ def update_value(input_data,start_date,end_date):
             type='date',
             tickformat='%b-%d-%Y',
             zeroline=False,
-            showgrid=False
+            showgrid=False,
+            range=[scaled_df.index.values[0],scaled_df.index.values[-1]]
+
         ),
         yaxis=dict(
             zeroline=False,
             showgrid=False,
-            showticklabels=False
+            showticklabels=False,
+            range=[scaled_df.values.min(),scaled_df.values.max()]
         )
     )
     return dcc.Graph(
@@ -95,5 +117,7 @@ def update_value(input_data,start_date,end_date):
     )
 
 if __name__ == '__main__':
-    dash_app.run_server(debug=False)
+    dash_app.run_server(debug=True)
+
+    print ('running')
 

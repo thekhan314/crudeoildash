@@ -39,7 +39,7 @@ for name,id in series_pulled.items():
     series_frame['Date']=pd.to_datetime(series_frame['Date'])
     series_frame.set_index('Date',drop=True,inplace=True)
     series_frame.sort_index(ascending=True,inplace=True)
-    series_frame = series_frame.loc['1991-01-04':'2019-04-01']
+    series_frame = series_frame.loc['2009-01-04':'2019-04-01']
     frame_list.append(series_frame)
 
 df_eia=functools.reduce(lambda x,y: x.join(y,how='outer'),frame_list)
