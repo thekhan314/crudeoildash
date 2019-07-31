@@ -7,7 +7,7 @@ from sklearn import preprocessing
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input,Output
+from dash.dependencies import Input,Output,State
 from datetime import datetime as dt
 import plotly
 import plotly.graph_objs as go
@@ -29,54 +29,70 @@ checkoptions = [
 
 
 dash_app.layout = html.Div(children=[
-    dcc.Checklist(id='maincheck',
-    options=checkoptions,
-    value=['Spot Price']),
-    dcc.DatePickerRange(
-        id='my-date-picker-range',
-        start_date=dt(2009, 1, 1),
-        end_date= dt.now() 
-    ),
-   html.Div(
+            dcc.Checklist(id='maincheck',
+            options=checkoptions,
+            value=['Spot Price']
+            ),
+         dcc.DatePickerRange(
+            id='my-date-picker-range',
+            start_date=dt(2009, 1, 1),
+            end_date= dt.now()
+            ),    
+        html.Button(
+            'Rescale',
+            id='scalebutton',
+        ),
+        html.Button(
+            'Reset',
+            id='reset'
+        ), 
+ html.Div(
        id='output',
+       children=[
+        dcc.Graph(
+            id='main-graph',
+            style={
+            'height': '100vh',
+            'backgroundColor':'black'
+            },
+            animate=True
+        )
+       ]
        ),
-   dcc.Interval(id='graph_update') 
 ]
 )
 
 
 
 @dash_app.callback(
-    Output(component_id='output',component_property='children'),
+    Output(component_id='main-graph',component_property='figure'),
     [Input(component_id='maincheck',component_property='value'),
     Input(component_id='my-date-picker-range',component_property='start_date'),
-    Input(component_id='my-date-picker-range',component_property='end_date')
-    ])
+    Input(component_id='my-date-picker-range',component_property='end_date')],
+    )
 
 def update_value(input_data,start_date,end_date):
 
-    conn = sqlite3.connect('oilstocks.db')
-    c = conn.cursor()
-  
-    dtstart_date=dt.strptime(start_date,'%Y-%m-%d')
-    dtend_date= dt.strptime(end_date[:19],'%Y-%m-%d %H:%M:%S') # 
+       
+    dtstart_date=dt.strptime(start_date[:10],'%Y-%m-%d')
+    dtend_date= dt.strptime(end_date[:10],'%Y-%m-%d') # 
 
     sql_start = dtstart_date.isoformat(" ")
-    sql_end = dtend_date.isoformat(" ")
+    sql_end = dtend_date.isoformat(" ")    
 
-    #news_df=pd.read_sql_query('SELECT Date, description,yvalue FROM newstable ORDER BY "Date" ASC',conn,index_col="Date")
-
-    scaled_df=pd.read_sql_query('SELECT * FROM crudestocks ORDER BY "Date" ASC',conn,index_col="Date")
-    
+    conn = sqlite3.connect('oilstocks.db')
+    c = conn.cursor()
+    scaled_df=pd.read_sql_query('SELECT * FROM crudestocks ORDER BY "Date" ASC',conn,index_col="Date")    
     scaled_df=scaled_df[sql_start:sql_end]
 
     for col in scaled_df:
         scaled_df[col]=preprocessing.scale(scaled_df[col])
 
     chartdata=[]
-
-    #newschart=go.Scatter(x=news_df.index,y=news_df['yvalue'],hovertext=news_df['description'],mode='markers')
-    #chartdata.append(newschart)
+    
+    news_df=pd.read_sql_query('SELECT Date, description,yvalue FROM newstable ORDER BY "Date" ASC',conn,index_col="Date")
+    newschart=go.Scatter(x=news_df.index,y=news_df['yvalue'],hovertext=news_df['description'],mode='markers')
+    chartdata.append(newschart)
 
     
     for val in input_data:
@@ -101,20 +117,39 @@ def update_value(input_data,start_date,end_date):
             showgrid=False,
             showticklabels=False,
             range=[scaled_df.values.min(),scaled_df.values.max()]
-        )
+        ),
+       # clickmode='event'
     )
-    return dcc.Graph(
-        id='main-graph',
-        figure={
+    figure = {
             'data':chartdata,
             'layout':layout
-        },
-        style={
-            'height': '100vh',
-            'backgroundColor':'black'
-            },
-        animate=True
+        }
+    
+    return figure
+        
+@dash_app.callback(
+    Output(component_id='my-date-picker-range',component_property='start_date'),
+    [Input(component_id='scalebutton',component_property='n_clicks'),
+    Input(component_id='reset',component_property='n_clicks')], 
+    [State(component_id='main-graph',component_property='relayoutData')]  
     )
+def updatestart(selectedData,reset,relayoutData):
+    if relayoutData is not None and relayoutData.get('xaxis.range[0]') is not None : 
+        return dt.strptime(relayoutData['xaxis.range[0]'][:10],'%Y-%m-%d')
+    else:
+        return '2008-01-01 00:00:00'
+
+@dash_app.callback(
+    Output(component_id='my-date-picker-range',component_property='end_date'),
+    [Input(component_id='scalebutton',component_property='n_clicks'),
+    Input(component_id='reset',component_property='n_clicks')],
+    [State(component_id='main-graph',component_property='relayoutData')]
+ )
+def updateend(selectedData,reset,relayoutData):
+    if relayoutData is not None and relayoutData.get('xaxis.range[1]') is not None:
+        return dt.strptime(relayoutData['xaxis.range[1]'][:10],'%Y-%m-%d')
+    else:
+        return dt.now() 
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)
