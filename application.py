@@ -16,6 +16,7 @@ import sqlite3
 
 #july 22 test
 
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 dash_app=dash.Dash(__name__)
 app=dash_app.server
@@ -35,7 +36,7 @@ dash_app.layout = html.Div(children=[
             ),
          dcc.DatePickerRange(
             id='my-date-picker-range',
-            start_date=dt(2009, 1, 1),
+            start_date=dt(2008, 1, 1),
             end_date= dt.now()
             ),    
         html.Button(
@@ -55,8 +56,7 @@ dash_app.layout = html.Div(children=[
             'height': '100vh',
             'backgroundColor':'black'
             },
-            animate=True
-        )
+            animate=True)
        ]
        ),
 ]
@@ -109,14 +109,14 @@ def update_value(input_data,start_date,end_date):
             tickformat='%b-%d-%Y',
             zeroline=False,
             showgrid=False,
-            range=[scaled_df.index.values[0],scaled_df.index.values[-1]]
-
+            range=[scaled_df.index.values[0],scaled_df.index.values[-1]],            
         ),
         yaxis=dict(
             zeroline=False,
             showgrid=False,
-            showticklabels=False,
-            range=[scaled_df.values.min(),scaled_df.values.max()]
+            showticklabels=False,           
+            range=[scaled_df.values.min(),scaled_df.values.max()],
+            
         ),
        # clickmode='event'
     )
